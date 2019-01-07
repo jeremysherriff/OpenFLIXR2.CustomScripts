@@ -1,0 +1,87 @@
+#!/bin/bash
+THISUSER=$(whoami)
+    if [ $THISUSER != 'root' ]
+        then
+            echo 'You must use sudo to run this script, sorry!'
+            exit  1
+    fi
+
+echo "Jackett:"
+echo "Grabbing current running state.."
+wasactive=$(systemctl is-active jackett)
+echo "  $wasactive"
+
+if [[ "$1" == "-f" ]] || [[ "$1" == "--force" ]]; then
+	echo "Forcing update"
+	forced=true
+else
+	forced=false
+fi
+
+echo "Checking currently installed version"
+currentver=$(mono /opt/jackett/JackettConsole.exe --version | head -1 | awk -F "[ .]" '{print $2 "." $3 "." $4}')
+if [ ! $currentver ]; then
+	echo "  Could not get currentver - assuming v0.0.1"
+	currentver='v0.0.1'
+fi
+
+echo $currentver | grep -i error
+if [ $? == 0 ]; then # the currentvrsion isn't empty but threw an error
+	echo "  currentver is an error string - assuming v0.0.1"
+	currentver='v0.0.1'
+else
+	echo "  currentver = $currentver"
+fi
+
+echo "Getting download URL from github.."
+link=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -i href | grep -i mono.tar.gz | awk -F "[\"]" '{print $2}')
+echo "  $link"
+echo "Plucking latest version out of github URL.."
+latestver=$(echo $link | awk -F "[\/]" '{print $6}')
+if [ ! $latestver ]; then
+	echo "  Could not get latestver - assuming same as currentver to avoid breaking stuff"
+	latestver=$currentver
+else
+	echo "  latestver = $latestver"
+fi
+
+link='https://github.com'$link
+if [[ $currentver != $latestver ]] || [[ $forced == true ]]
+    then
+        echo "Jackett needs updating"
+        echo "  Download link = $link"
+        cd /tmp/
+        rm Jackett.Binaries.Mono.tar.gz* 2> /dev/null
+        dl=false
+        wget -q --show-progress --progress=bar:force:noscroll $link && dl=true
+        if [ $dl == false ]; then
+          echo '  Download failed!'
+	else
+          echo "  Download succeeded"
+          echo "Updating Jackett"
+          echo "  stopping Jackett service"
+          service jackett stop
+          echo "  unpacking tar"
+          tar -xf Jackett*
+#	  echo "  removing existing binaries"
+#	  rm -r /opt/jackett/*
+          echo "  copying into /opt"
+          sudo cp -r Jackett*/* /opt/jackett/
+	  echo "  fixing permissions"
+	  chown -R openflixr:openflixr /opt/jackett/
+          echo "Cleaning up"
+          rm -rf Jackett*/
+          rm Jackett.Binaries.Mono.tar.gz*
+          if [ $wasactive == "active" ]
+              then
+                echo "Starting Jackett after update"
+                  service jackett start
+              else
+                  echo "Jackett was not running before, so not starting it now"
+              fi
+        fi
+    else
+        echo "Jackett is up to date"
+    fi
+
+echo ""

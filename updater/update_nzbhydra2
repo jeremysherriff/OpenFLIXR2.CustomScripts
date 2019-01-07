@@ -1,0 +1,52 @@
+#!/bin/bash
+THISUSER=$(whoami)
+    if [ $THISUSER != 'root' ]
+        then
+            echo 'You must use sudo to run this script, sorry!'
+            exit  1
+    fi
+
+echo "NzbHydra2:"
+wasactive=$(systemctl is-active nzbhydra2)
+link=$(wget -q https://github.com/theotherp/nzbhydra2/releases/latest -O - | grep -i href | grep -i linux.zip | awk -F "[\"]" '{print $2}')
+latestver=$(echo $link | awk -F "[\/]" '{print $6}')
+latestverurl=$(echo $link | awk -F "[\/]" '{print $1"/"$2"/"$3"/"$4"/"$5"/"$6"/"$7}')
+link='https://github.com'$latestverurl
+echo latestver = $latestver
+currentver=$(python /opt/nzbhydra2/nzbhydra2wrapper.py --version | grep -i version: | awk -F ":" '{printf $4}' | awk -F " " '{printf $1}')
+echo currentver = $currentver
+
+## Testing
+ls_currentver=$(ls -1v /opt/nzbhydra2/lib/core* | tail -1 | awk -F "[-]" '{printf "v"$2}')
+echo ls_currentver = $ls_currentver
+if [[ $ls_currentver != $currentver ]]; then
+   echo "Check for current version gave inconsistent results, script may need improving"
+fi
+## End Testing
+
+if [[ $currentver != $latestver ]]; then
+   echo "NzbHydra2 needs updating"
+   echo "download link = $link"
+   dl=false
+   cd /tmp/
+   rm nzbhydra2* 2> /dev/null
+   wget -q --show-progress --progress=bar:force:noscroll $link && dl=true
+   if [[ $dl == true ]]; then
+     service nzbhydra2 stop
+     unzip -o nzbhydra2*.zip -d /opt/nzbhydra2/
+     rm nzbhydra2* 2> /dev/null
+     chown -R openflixr: /opt/nzbhydra2
+     if [ $wasactive == "active" ]; then
+       echo "Starting NZBhydra2 after update"
+       service nzbhydra2 start
+     else
+       echo "NzbHydra2 was not running before, so not starting it now"
+     fi
+   else
+     echo 'Download failed!'
+   fi
+else
+   echo "NzbHydra2 is up to date"
+fi
+
+echo ""

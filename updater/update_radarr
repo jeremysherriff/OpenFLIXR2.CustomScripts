@@ -1,0 +1,51 @@
+#!/bin/bash
+THISUSER=$(whoami)
+    if [ $THISUSER != 'root' ]
+        then
+            echo 'You must use sudo to run this script, sorry!'
+            exit  1
+    fi
+
+echo "Radarr:"
+# Get Radarr state so we can return it to the same
+wasactive=$(systemctl is-active radarr)
+# GitHub's web page format has changed. Just grab the download link and work with that instead of parsing the version title string.
+link=$(wget -q https://github.com/radarr/Radarr/releases/latest -O - | grep -i href | grep -i linux.tar.gz | head -1 | awk -F "[\"]" '{print $2}')
+latestver=$(echo $link | awk -F "[\/]" '{print $6}')
+latestverurl=$(echo $link | awk -F "[\/]" '{print $1"/"$2"/"$3"/"$4"/"$5"/"$6"/"$7}')
+link='https://github.com'$latestverurl
+# Write some stuff to the log so we know what happened if it goes wrong
+echo latestver = $latestver
+currentver=$(strings -d /opt/Radarr/NzbDrone.Core.dll | grep .Common | grep Version | awk -F "[,]" '{print $3}' | awk -F "[=]" '{print "v"$2}')
+echo currentver = $currentver
+exit
+if [[ $currentver != $latestver ]]
+then
+  echo "Radarr needs updating"
+  echo "download link = $link"
+  cd /tmp/
+  rm Radarr.develop.* 2> /dev/null
+  dl=false
+  wget -q --show-progress --progress=bar:force:noscroll $link && dl=true
+  if [ $dl == true ]; then
+    service radarr stop
+    tar -xvf Radarr*
+    cp -r Radarr*/* /opt/Radarr/
+    chown -R openflixr: /opt/Radarr/
+    rm -rf Radarr*/
+    rm Radarr.develop.*
+    if [ $wasactive == "active" ]
+    then
+      echo "Starting Radarr after update"
+      service radarr start
+    else
+      echo "Radarr was not running before, so not starting it now"
+    fi
+  else
+    echo 'Download failed!'
+  fi
+else
+  echo "Radarr is up to date"
+fi
+
+echo ""
