@@ -6,7 +6,6 @@ THISUSER=$(whoami)
             exit  1
     fi
 
-echo "NzbHydra2:"
 wasactive=$(systemctl is-active nzbhydra2)
 link=$(wget -q https://github.com/theotherp/nzbhydra2/releases/latest -O - | grep -i href | grep -i linux.zip | awk -F "[\"]" '{print $2}')
 latestver=$(echo $link | awk -F "[\/]" '{print $6}')

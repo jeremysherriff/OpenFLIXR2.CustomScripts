@@ -6,7 +6,6 @@ THISUSER=$(whoami)
             exit  1
     fi
 
-echo "Radarr:"
 # Get Radarr state so we can return it to the same
 wasactive=$(systemctl is-active radarr)
 # GitHub's web page format has changed. Just grab the download link and work with that instead of parsing the version title string.

@@ -6,7 +6,6 @@ THISUSER=$(whoami)
             exit  1
     fi
 
-echo "Jackett:"
 echo "Grabbing current running state.."
 wasactive=$(systemctl is-active jackett)
 echo "  $wasactive"
