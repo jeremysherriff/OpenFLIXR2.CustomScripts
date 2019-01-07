@@ -1,0 +1,6 @@
+#!/bin/bash
+cd /opt/ssl-cert-check
+git reset --hard
+git pull
+echo ""
+
