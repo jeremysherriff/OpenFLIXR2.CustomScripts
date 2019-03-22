@@ -1,0 +1,74 @@
+#!/bin/bash
+THISUSER=$(whoami)
+    if [ $THISUSER != 'root' ]
+        then
+            echo 'You must use sudo to run this script, sorry!'
+            exit  1
+    fi
+
+echo "Grabbing current running state.."
+wasactive=$(systemctl is-active nzbget)
+echo "  $wasactive"
+# This is unnecessary for NZBGet
+
+forced=false
+if [[ "$1" == "-f" ]] || [[ "$1" == "--force" ]]; then
+	forced=true
+fi
+
+echo "Checking currently installed version.."
+currentver=$(/opt/nzbget/nzbget --version | awk '{print $3}')
+if [[ ! $currentver ]]; then
+	echo "  Could not get currentver - assuming 0.1"
+	currentver='0.1'
+fi
+echo "  currentver = $currentver"
+
+echo "Getting installer from www.."
+cd /tmp
+dl=false
+rm -f nzbget-latest-bin-linux.run*
+# NZBGet's installer script contains the entire binary, so it's a bit large.
+# But I prefer to downloda it anyway than try to get the current release out of the
+# igithub repo releases page.
+wget -q --show-progress --progress=bar:force:noscroll https://nzbget.net/download/nzbget-latest-bin-linux.run && dl=true
+
+if [[ $dl == false ]]; then
+    echo "Could not fetch NZBGet installer, exiting"
+    exit 1
+fi
+
+echo "Plucking latest version out of installer script.."
+latestver=$(strings -d /tmp/nzbget-latest-bin-linux.run | head -30 | grep TITLE | head -1 | awk -F "[\"-]" '{printf $3}')
+if [[ ! $latestver ]]; then
+	echo "  Could not get latestver - assuming same as currentver to avoid breaking stuff"
+	latestver=$currentver
+fi
+echo "  latestver = $latestver"
+
+if [[ $currentver != $latestver ]] || [[ $forced == true ]]; then
+    if [[ $forced == true ]]; then
+        echo "Forcing NZBGet update"
+    else
+        echo "NZBGet needs updating"
+    fi
+    echo "  Executing installer script.."
+    cd /tmp
+    sh nzbget-latest-bin-linux.run --destdir /opt/nzbget
+#    if [[ $wasactive == "active" ]]; then
+#        echo "Starting NZBGet after update"
+#        service jackett start
+#    else
+#        echo "NZBGet was not running before, so not starting it now"
+#    fi
+else
+    echo "NZBGet is up to date"
+fi
+
+echo "Setting permissions on install directory"
+chown -R openflixr: /opt/nzbget
+
+echo "Cleaning up"
+rm -f nzbget-latest-bin-linux.run*
+
+echo ""
