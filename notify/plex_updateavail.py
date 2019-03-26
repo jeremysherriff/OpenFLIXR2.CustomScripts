@@ -45,8 +45,7 @@ msg_html = """\
 
 <body>
     <p style="font-family: Arial, Helvetica, sans-serif; font-size=9px">A Plex update is available - {a.ver} ({a.distro})<br>
-       Download at <a href="{a.url}" target="_new">{a.url}</a> or<br>
-       run \'sudo /opt/openflixr/updateplex.sh\' to update.</p>
+       Download at <a href="{a.url}" target="_new">{a.url}</a></p>
 """
 
 if a.extrainfo:
