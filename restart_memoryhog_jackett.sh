@@ -12,7 +12,7 @@ if [[ -n $MYDEBUG ]]; then echo "RAM usage is at $RAM bytes"; fi
 if [[ -n $RAM ]]; then
     if [[ $RAM -gt $CEILING ]]; then
         if [[ -n $MYDEBUG ]]; then echo "RAM usage is above ceiling, restarting service"; fi
-        systemctl restart jackett
+        systemctl try-reload-or-restart jackett
     else
         if [[ -n $MYDEBUG ]]; then echo "RAM usage is fine"; fi
     fi

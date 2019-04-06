@@ -12,7 +12,7 @@ if [[ -n $MYDEBUG ]]; then echo "RAM usage is at $RAM bytes"; fi
 if [[ -n $RAM ]]; then
     if [[ $RAM -gt $CEILING ]]; then
         if [[ -n $MYDEBUG ]]; then echo "RAM usage is above ceiling, restarting service"; fi
-        systemctl restart sonarr
+        systemctl try-reload-or-restart sonarr
     else
         if [[ -n $MYDEBUG ]]; then echo "RAM usage is fine"; fi
     fi
