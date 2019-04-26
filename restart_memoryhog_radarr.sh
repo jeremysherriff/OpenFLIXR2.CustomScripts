@@ -1,10 +1,16 @@
 #!/bin/bash
+CEILING=2600000
 
+LOGFILE=/var/log/memoryhog.log
 if [[ "$1" == "-v" || "$1" == "--verbose" ]]; then
     MYDEBUG=1
 fi
 
-CEILING=2600000
+function info () {
+    if [[ -n $MYDEBUG ]]; then echo $1; fi
+    echo `date "+%F %r"` [Radarr] $1>> $LOGFILE
+}
+
 RAM=$(ps -aux | grep -i radarr | grep -v grep | grep -v memoryhog | awk '{print $5}')
 
 if [[ -n $MYDEBUG ]]; then echo "RAM usage is at $RAM bytes"; fi
