@@ -7,22 +7,22 @@ if [[ "$1" == "-v" || "$1" == "--verbose" ]]; then
 fi
 
 function info () {
-    if [[ -n $MYDEBUG ]]; then echo $1; fi
-    echo `date "+%F %r"` [Radarr] $1>> $LOGFILE
+    if [[ -n $MYDEBUG ]]; then echo "$1"; fi
+    echo "`date "+%F %r"` [Radarr]   $1">> $LOGFILE
 }
 
 RAM=$(ps -aux | grep -i radarr | grep -v grep | grep -v memoryhog | awk '{print $5}')
 
-if [[ -n $MYDEBUG ]]; then info "RAM usage is at $RAM bytes"; fi
+info "RAM usage is at $RAM bytes"
 
 if [[ -n $RAM ]]; then
     if [[ $RAM -gt $CEILING ]]; then
-        if [[ -n $MYDEBUG ]]; then info "RAM usage is above ceiling, restarting service"; fi
+        info "RAM usage is above ceiling, restarting service"
         systemctl try-reload-or-restart radarr
     else
-        if [[ -n $MYDEBUG ]]; then info "RAM usage is fine"; fi
+        info "RAM usage is fine"
     fi
 else
-    if [[ -n $MYDEBUG ]]; then info "Could not compute RAM usage, is service running?"; fi
+    info "Could not compute RAM usage, is service running?"
 fi
 
