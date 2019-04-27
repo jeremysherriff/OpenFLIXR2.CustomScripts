@@ -1,5 +1,5 @@
 #!/bin/bash
-CEILING=2600000
+CEILING=3072000
 
 LOGFILE=/var/log/memoryhog.log
 if [[ "$1" == "-v" || "$1" == "--verbose" ]]; then

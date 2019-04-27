@@ -1,5 +1,5 @@
 #!/bin/bash
-CEILING=2800000
+CEILING=2867200
 
 
 LOGFILE=/var/log/memoryhog.log
