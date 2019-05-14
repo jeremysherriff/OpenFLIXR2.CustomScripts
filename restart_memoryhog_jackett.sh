@@ -17,7 +17,7 @@ info "RAM usage is at $RAM bytes"
 
 if [[ -n $RAM ]]; then
     if [[ $RAM -gt $CEILING ]]; then
-        echo "RAM usage is above ceiling, restarting service"
+        info "RAM usage is above ceiling, restarting service"
         systemctl try-reload-or-restart jackett
     else
         info "RAM usage is fine"
