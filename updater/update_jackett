@@ -6,6 +6,23 @@ THISUSER=$(whoami)
             exit  1
     fi
 
+EDITION=Unidentified
+echo "Checking edition"
+if [ -f /opt/jackett/JackettConsole.exe ]; then
+	EDITION=Mono
+fi
+if [ -f /opt/jackett/jackett ]; then
+	EDITION=LinuxAMDx64
+fi
+echo "Edition is $EDITION"
+
+if [[ $EDITION == "Unidentified" ]]; then
+	echo "Cannot identify which edition of Jackett you are using."
+	echo "Exiting."
+	exit 1
+fi
+
+echo "Detected edition is $EDITION"
 echo "Grabbing current running state.."
 wasactive=$(systemctl is-active jackett)
 echo "  $wasactive"
@@ -18,7 +35,15 @@ else
 fi
 
 echo "Checking currently installed version"
-currentver=$(mono /opt/jackett/JackettConsole.exe --version | head -1 | awk -F "[ .]" '{print $2 "." $3 "." $4}')
+if [[ $EDITION == "Mono" ]]; then
+	currentver=$(mono /opt/jackett/JackettConsole.exe --version | head -1 | awk -F "[ .]" '{print $2 "." $3 "." $4}')
+else
+	currentver=$(/opt/jackett/jackett --version | head -1 | awk -F "[ .]" '{print $2 "." $3 "." $4}')
+	echo "Updater not implemented for $EDITION edition yet. Exiting."
+	echo "currentver looks like $currentver"
+	exit 1
+fi
+
 if [ ! $currentver ]; then
 	echo "  Could not get currentver - assuming v0.0.1"
 	currentver='v0.0.1'
@@ -33,8 +58,9 @@ else
 fi
 
 echo "Getting download URL from github.."
-link=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -i href | grep -i mono.tar.gz | awk -F "[\"]" '{print $2}')
+link=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -i href | grep -i $EDITION.tar.gz | awk -F "[\"]" '{print $2}')
 echo "  $link"
+
 echo "Plucking latest version out of github URL.."
 latestver=$(echo $link | awk -F "[\/]" '{print $6}')
 if [ ! $latestver ]; then
@@ -50,7 +76,7 @@ if [[ $currentver != $latestver ]] || [[ $forced == true ]]
         echo "Jackett needs updating"
         echo "  Download link = $link"
         cd /tmp/
-        rm Jackett.Binaries.Mono.tar.gz* 2> /dev/null
+        rm Jackett.Binaries.*.tar.gz 2> /dev/null
         dl=false
         wget -q --show-progress --progress=bar:force:noscroll $link && dl=true
         if [ $dl == false ]; then
@@ -61,16 +87,17 @@ if [[ $currentver != $latestver ]] || [[ $forced == true ]]
           echo "  stopping Jackett service"
           service jackett stop
           echo "  unpacking tar"
-          tar -xf Jackett*
-#	  echo "  removing existing binaries"
-#	  rm -r /opt/jackett/*
-          echo "  copying into /opt"
+          tar -xf Jackett.Binaries.*.tar.gz
+	  echo "  removing existing binaries"
+	  rm -r /opt/jackett/*
+          echo "  copying into /opt/jackett/"
           sudo cp -r Jackett*/* /opt/jackett/
 	  echo "  fixing permissions"
-	  chown -R openflixr:openflixr /opt/jackett/
+#	  chown -R openflixr: /opt/jackett/ # Do this smarter!
+	  chown -R --reference=/opt/jackett /opt/jackett/*
           echo "Cleaning up"
-          rm -rf Jackett*/
-          rm Jackett.Binaries.Mono.tar.gz*
+          rm -rf Jackett.Binaries.*/
+          rm Jackett.Binaries.*.tar.gz
           if [ $wasactive == "active" ]
               then
                 echo "Starting Jackett after update"
