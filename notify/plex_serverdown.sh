@@ -19,6 +19,9 @@ TO_ADDRESS=$(crudini --get /opt/custom/notify/email.ini Email TO_ADDRESS)
 USE_TLS=$(crudini --get /opt/custom/notify/email.ini Email USE_TLS | awk '{print $1}')
 MAIL_SERVER=$(crudini --get /opt/custom/notify/email.ini Email MAIL_SERVER)
 MAIL_PORT=$(crudini --get /opt/custom/notify/email.ini Email MAIL_PORT)
+if [[ -n $DISPLAY_NAME ]]; then
+        FROM_ADDRESS="$DISPLAY_NAME<$FROM_ADDRESS>"
+fi
 
 MAIL_SUBJECT="PlexPy Alert: Plex Server Down"
 
