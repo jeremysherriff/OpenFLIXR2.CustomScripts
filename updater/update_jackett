@@ -39,9 +39,6 @@ if [[ $EDITION == "Mono" ]]; then
 	currentver=$(mono /opt/jackett/JackettConsole.exe --version | head -1 | awk -F "[ .]" '{print $2 "." $3 "." $4}')
 else
 	currentver=$(/opt/jackett/jackett --version | head -1 | awk -F "[ .]" '{print $2 "." $3 "." $4}')
-	echo "Updater not implemented for $EDITION edition yet. Exiting."
-	echo "currentver looks like $currentver"
-	exit 1
 fi
 
 if [ ! $currentver ]; then
