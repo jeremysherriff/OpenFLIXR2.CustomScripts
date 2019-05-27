@@ -16,11 +16,11 @@ git pull
 #  rm /etc/cron.weekly/letsrenew.sh
 #fi
 
-### Stop all the things that shouldn't be running
-echo Stop unwanted apps
-/opt/custom/stop_unwanted_apps.sh
-
 echo Run all updater scripts
 chmod +x /opt/custom/updater/*
 run-parts -v /opt/custom/updater
+
+### Stop all the things that shouldn't be running
+echo Stop unwanted apps
+/opt/custom/stop_unwanted_apps.sh
 
