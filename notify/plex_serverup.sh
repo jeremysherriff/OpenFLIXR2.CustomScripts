@@ -6,17 +6,19 @@ The Plex Media Server is up.
 EOF
 
 ## Externalised email settings
-. /opt/custom/notify/email.ini
-if [[ $SMTP_AUTH == "yes" ]]; then
-        SMTP_USER="-xu $SMTP_USER"
-        SMTP_PASS="-xp $SMTP_PASS"
-else
-        SMTP_USER=
-        SMTP_PASS=
+if [[ $(crudini --get /opt/custom/notify/email.ini Email SMTP_AUTH | awk '{print $1}') == "yes" ]]; then
+        SMTP_USER="-xu $(crudini --get /opt/custom/notify/email.ini Email SMTP_USER)"
+        SMTP_PASS="-xp $(crudini --get /opt/custom/notify/email.ini Email SMTP_PASS)"
 fi
-if [[ -n $CC_ADDRESS ]]; then
-        CC_ADDRESS="-cc $CC_ADDRESS"
+if [[ -n $(crudini --get /opt/custom/notify/email.ini Email CC_ADDRESS) ]]; then
+        CC_ADDRESS="-cc $(crudini --get /opt/custom/notify/email.ini Email CC_ADDRESS)"
 fi
+
+FROM_ADDRESS=$(crudini --get /opt/custom/notify/email.ini Email FROM_ADDRESS)
+TO_ADDRESS=$(crudini --get /opt/custom/notify/email.ini Email TO_ADDRESS)
+USE_TLS=$(crudini --get /opt/custom/notify/email.ini Email USE_TLS | awk '{print $1}')
+MAIL_SERVER=$(crudini --get /opt/custom/notify/email.ini Email MAIL_SERVER)
+MAIL_PORT=$(crudini --get /opt/custom/notify/email.ini Email MAIL_PORT)
 
 MAIL_SUBJECT="PlexPy Alert: Plex Server Up"
 
