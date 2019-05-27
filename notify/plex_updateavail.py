@@ -12,7 +12,7 @@ import email.utils
 import smtplib
 import sys
 import argparse
-
+from ConfigParser import ConfigParser
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-ver', action='store', default='_version_',
@@ -30,13 +30,15 @@ parser.add_argument('-fixed', action='store', default='',
 a = parser.parse_args()
 
 # Email settings
-name = 'PlexPy' # Your name
-sender = 'jeremysherriff@gmail.com' # From email address
-to = 'alerts@bgs.co.nz'
-email_server = '192.168.220.254' # Email server (Gmail: smtp.gmail.com)
-email_port = 25  # Email port (Gmail: 587)
-email_username = 'email' # Your email username
-email_password = 'password' # Your email password
+config = ConfigParser()
+config.read('/opt/custom/notify/email.ini')
+name = config.get('Email','DISPLAY_NAME')
+sender = config.get('Email','FROM_ADDRESS')
+to = config.get('Email','TO_ADDRESS')
+email_server = config.get('Email','MAIL_SERVER')
+email_port = config.get('Email','MAIL_PORT')
+email_username = config.get('Email','SMTP_USER')
+email_password = config.get('Email','SMTP_PASS')
 email_subject = 'Plex Update Available'
 
 msg_html = """\
