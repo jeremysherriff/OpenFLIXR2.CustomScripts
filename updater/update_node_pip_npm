@@ -1,0 +1,23 @@
+# Credit: OpenFLIXR updatewkly.sh original script
+
+## Node / PIP / NPM
+cd /usr/lib/node_modules
+sudo npm install npm@latest -g
+sudo -H npm install npm@latest
+sudo -H npm i npm@latest -g
+
+if [[ -d /usr/lib/node_modules/rtail ]]; then
+    cd /usr/lib/node_modules/rtail
+    sudo -H npm update
+fi
+
+if [[ -d /usr/lib/node_modules/npm ]]; then
+cd /usr/lib/node_modules/npm
+sudo -H npm update
+fi
+
+cd ~
+sudo -H pip install --upgrade pip
+sudo -H pip3 install --upgrade pip
+sudo -H pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs pip install -U
+sudo -H pip3 freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs pip3 install -U
