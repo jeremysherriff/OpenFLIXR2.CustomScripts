@@ -1,11 +1,19 @@
 #!/bin/bash
 CONF_BASE=/etc/monit/conf.d
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+INI_FILE=$SCRIPT_PATH/stop_unwanted_apps.ini
+DEFAULT_INI_FILE=$SCRIPT_PATH/stop_unwanted_apps.defaultini
+
+if [[ (! -f $INI_FILE) && (-f $DEFAULT_INI_FILE) ]]; then
+    cp $DEFAULT_INI_FILE $INI_FILE
+fi
 
 if [[ "$1" == "--help" || "$1" == "-?" || "$1" == "-h" ]]; then
     echo ""
     echo "  stop_unwanted_apps.sh [OPTION]"
     echo ""
-    echo "  Automates service actions based on entries in /opt/custom/stop_unwanted_apps.ini"
+    echo "  Automates service actions based on entries in $INI_FILE"
     echo "  Services are those defined in Monit service files in $CONF_BASE"
     echo "      -?     : This help"
     echo "      -l     : List out all the Monit services detected on this system"
@@ -55,7 +63,7 @@ debug "-----------------------------------------------------"
 cd $CONF_BASE
 for s in *; do
     debug "Evaluating Monit service $s:"
-    ACTION=$(crudini --get /opt/custom/stop_unwanted_apps.ini $s action 2>/dev/null || echo "notdefined")
+    ACTION=$(crudini --get $INI_FILE $s action 2>/dev/null || echo "notdefined")
     debug "  Requested action is $ACTION"
 
     case $ACTION in 
@@ -72,7 +80,7 @@ for s in *; do
       autostart)
         debug "    Actioning 'monit start' on $s"
         monit start $s
-        SERVICENAME=$(crudini --get /opt/custom/stop_unwanted_apps.ini $s servicename 2>/dev/null || echo "$s")
+        SERVICENAME=$(crudini --get $INI_FILE $s servicename 2>/dev/null || echo "$s")
         if [[ "$SERVICENAME" != "$s" ]]; then
             debug "  Overriding service name as $SERVICENAME"
         fi
@@ -83,7 +91,7 @@ for s in *; do
       disable)
         debug "    Actioning 'monit stop' on $s"
         monit stop $s
-        SERVICENAME=$(crudini --get /opt/custom/stop_unwanted_apps.ini $s servicename 2>/dev/null || echo "$s")
+        SERVICENAME=$(crudini --get $INI_FILE $s servicename 2>/dev/null || echo "$s")
         if [[ "$SERVICENAME" != "$s" ]]; then
             debug "  Overriding service name as $SERVICENAME"
         fi
