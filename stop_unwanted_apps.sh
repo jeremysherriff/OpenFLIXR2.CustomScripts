@@ -1,11 +1,12 @@
 #!/bin/bash
 CONF_BASE=/etc/monit/conf.d
+INIFILE=~root/stop_unwanted_apps.ini
 
 if [[ "$1" == "--help" || "$1" == "-?" || "$1" == "-h" ]]; then
     echo ""
     echo "  stop_unwanted_apps.sh [OPTION]"
     echo ""
-    echo "  Automates service actions based on entries in /opt/custom/stop_unwanted_apps.ini"
+    echo "  Automates service actions based on entries in $INIFILE"
     echo "  Services are those defined in Monit service files in $CONF_BASE"
     echo "      -?     : This help"
     echo "      -l     : List out all the Monit services detected on this system"
@@ -31,13 +32,59 @@ if [[ "$1" == "-l" ]]; then
         echo "  $s"
     done
     echo ""
-    exit 0
+    exit 2
 fi
 
 if [[ "$1" == "-q" ]]; then
     VERBOSE=0
 else
     VERBOSE=1
+fi
+
+if [[ ! -f $INIFILE ]]; then
+    echo ""
+    echo "Creating default ini file in $INIFILE"
+    cat << EOF >$INIFILE
+# Actions should be one of;
+#  start       Start service now
+#  autostart   Start service and set to start on boot
+#  stop        Stop service now
+#  disable     Stop service now, and disable start-on-boot
+#  ignore      Leave service as-is
+
+# Any other action word, or not specifying an action, ignores the service and skips any action.
+# Similarly, any Monit service without a section is ignored.
+
+# If the Monit definition file has a different name to the formal systemctl service,
+# use the servicename directive to override it.
+
+# Example:
+# [syncthing]
+# action=disable
+# servicename=syncthing@openflixr
+
+EOF
+
+    cd $CONF_BASE
+    for s in *; do
+        echo "[$s]">>$INIFILE
+        echo "action=ignore">>$INIFILE
+        case s in
+          sabnzdb)
+            echo "servicename=sabnzbdplus">>$INIFILE
+            ;;
+          syncthing)
+            echo "servicename=syncthing@openflixr">>$INIFILE
+            ;;
+          nzbhydra)
+            echo "servicename=nzbhydra2">>$INIFILE
+            ;;
+        esac
+        echo "">>$INIFILE
+    done
+    echo "Please review and edit this file before running the script again."
+    echo ""
+    exit 2
 fi
 
 debug () {
@@ -55,7 +102,7 @@ debug "-----------------------------------------------------"
 cd $CONF_BASE
 for s in *; do
     debug "Evaluating Monit service $s:"
-    ACTION=$(crudini --get /opt/custom/stop_unwanted_apps.ini $s action 2>/dev/null || echo "notdefined")
+    ACTION=$(crudini --get $INIFILE $s action 2>/dev/null || echo "notdefined")
     debug "  Requested action is $ACTION"
 
     case $ACTION in 
@@ -72,7 +119,7 @@ for s in *; do
       autostart)
         debug "    Actioning 'monit start' on $s"
         monit start $s
-        SERVICENAME=$(crudini --get /opt/custom/stop_unwanted_apps.ini $s servicename 2>/dev/null || echo "$s")
+        SERVICENAME=$(crudini --get $INIFILE $s servicename 2>/dev/null || echo "$s")
         if [[ "$SERVICENAME" != "$s" ]]; then
             debug "  Overriding service name as $SERVICENAME"
         fi
@@ -83,7 +130,7 @@ for s in *; do
       disable)
         debug "    Actioning 'monit stop' on $s"
         monit stop $s
-        SERVICENAME=$(crudini --get /opt/custom/stop_unwanted_apps.ini $s servicename 2>/dev/null || echo "$s")
+        SERVICENAME=$(crudini --get $INIFILE $s servicename 2>/dev/null || echo "$s")
         if [[ "$SERVICENAME" != "$s" ]]; then
             debug "  Overriding service name as $SERVICENAME"
         fi
