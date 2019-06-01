@@ -43,7 +43,8 @@ fi
 
 if [[ ! -f $INIFILE ]]; then
     echo ""
-    echo "Creating default ini file in $INIFILE"
+    echo "$INIFILE does not exist - Creating with defaults"
+    echo ""
     cat << EOF >$INIFILE
 # Actions should be one of;
 #  start       Start service now
@@ -67,10 +68,18 @@ EOF
 
     cd $CONF_BASE
     for s in *; do
+        if [[ "$s" == "localhost" || "$s" == "nfs" || "$s" == "ssh" || "$s" == "cron" || "$s" == "ntp" || "$s" == "_localsetup" ]]; then
+            echo "    Skipping $s as it is a system component"
+            continue
+        fi
+        echo "    Adding $s"
         echo "[$s]">>$INIFILE
         echo "action=ignore">>$INIFILE
-        case s in
-          sabnzdb)
+        case $s in
+          hass)
+            echo "servicename=home-assistant">>$INIFILE
+            ;;
+          sabnzbd)
             echo "servicename=sabnzbdplus">>$INIFILE
             ;;
           syncthing)
@@ -79,10 +88,24 @@ EOF
           nzbhydra)
             echo "servicename=nzbhydra2">>$INIFILE
             ;;
+          pihole)
+            echo "servicename=pihole-FTL">>$INIFILE
+            ;;
+          plexms)
+            echo "servicename=plexmediaserver">>$INIFILE
+            ;;
+          utserver)
+            echo "servicename=utorrent-server">>$INIFILE
+            ;;
         esac
         echo "">>$INIFILE
     done
+    echo ""
+    echo "*****************************************************************"
+    echo "Created default ini at $INIFILE"
+    echo "All actions have been set to 'ignore' initially."
     echo "Please review and edit this file before running the script again."
+    echo "*****************************************************************"
     echo ""
     exit 2
 fi
