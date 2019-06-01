@@ -1,8 +1,10 @@
 #!/bin/bash
 CONF_BASE=/etc/monit/conf.d
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-INI_FILE=/opt/custom/stop_unwanted_apps.ini
-DEFAULT_INI_FILE=/opt/custom/stop_unwanted_apps.defaultini
+INI_FILE=$SCRIPT_PATH/stop_unwanted_apps.ini
+DEFAULT_INI_FILE=$SCRIPT_PATH/stop_unwanted_apps.defaultini
+
 if [[ (! -f $INI_FILE) && (-f $DEFAULT_INI_FILE) ]]; then
     cp $DEFAULT_INI_FILE $INI_FILE
 fi
