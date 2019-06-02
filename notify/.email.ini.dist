@@ -7,7 +7,8 @@ CC_ADDRESS=
 MAIL_SERVER=192.168.x.x
 MAIL_PORT=25
 
-# USE_TLS can be yes|no|auto
+# USE_TLS can be yes|no
+# If set to yes, be aware that certificate verification must succeed.
 USE_TLS=no
 
 # SMTP_AUTH can be yes|no
