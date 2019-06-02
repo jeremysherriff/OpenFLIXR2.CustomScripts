@@ -1,0 +1,19 @@
+[Email]
+DISPLAY_NAME=OpenFlixr
+FROM_ADDRESS=openflixr@domain.com
+TO_ADDRESS=you@domain.com
+CC_ADDRESS=
+
+MAIL_SERVER=192.168.x.x
+MAIL_PORT=25
+
+# USE_TLS can be yes|no|auto
+USE_TLS=no
+
+# SMTP_AUTH can be yes|no
+# If it is yes, be sure the username/password values are specified.
+# If your MAIL_PORT is 587, SMTP_AUTH is probably required.
+SMTP_AUTH=no
+SMTP_USER=usernamehere
+SMTP_PASS=passwordhere
+

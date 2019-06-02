@@ -6,6 +6,15 @@ Download complete.
 
 EOF
 
+if [[ ! -f /opt/custom/notify/email.ini ]]; then
+        echo ""
+        echo "Mail settings not defined!"
+        echo "Please review and edit /opt/custom/notify/email.ini"
+        cp /opt/custom/notify/.email.ini.dist /opt/custom/notify/email.ini
+        echo ""
+        exit 1
+fi
+
 ## Externalised email settings
 if [[ $(crudini --get /opt/custom/notify/email.ini Email SMTP_AUTH | awk '{print $1}') == "yes" ]]; then
         SMTP_USER="-xu $(crudini --get /opt/custom/notify/email.ini Email SMTP_USER)"
