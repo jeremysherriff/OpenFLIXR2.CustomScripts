@@ -1,0 +1,85 @@
+#!/bin/bash
+THISUSER=$(whoami)
+    if [ $THISUSER != 'root' ]
+        then
+            echo 'You must use sudo to run this script, sorry!'
+            exit  1
+    fi
+
+echo "Grabbing current running state.."
+wasactive=$(systemctl is-active monit)
+echo "  $wasactive"
+
+if [[ "$1" == "-f" ]] || [[ "$1" == "--force" ]]; then
+	echo "Forcing update"
+	forced=true
+else
+	forced=false
+fi
+
+echo "Checking currently installed version"
+currentver=$(/usr/bin/monit -V | head -1 | awk '{print$5}')
+
+if [ ! $currentver ]; then
+	echo "  Could not get currentver - assuming 0.0.1"
+	currentver='0.0.1'
+fi
+
+echo $currentver | grep -i error
+if [ $? == 0 ]; then # the currentvrsion isn't empty but threw an error
+	echo "  currentver is an error string - assuming 0.0.1"
+	currentver='0.0.1'
+else
+	echo "  currentver = $currentver"
+fi
+
+echo "Getting download URL from mmonit.com"
+link=$(wget -q https://mmonit.com/monit/\#download -O - | grep linux-x64.tar.gz | awk -F "[\"]" '{print $2}')
+echo "  $link"
+
+echo "Plucking latest version out of github URL.."
+latestver=$(echo $link | awk -F "[\/]" '{print $3}')
+if [ ! $latestver ]; then
+	echo "  Could not get latestver - assuming same as currentver to avoid breaking stuff"
+	latestver=$currentver
+else
+	echo "  latestver = $latestver"
+fi
+
+link='https://mmonit.com/monit/'$link
+if [[ $currentver != $latestver ]] || [[ $forced == true ]]
+    then
+        echo "Monit needs updating"
+        echo "  Download link = $link"
+        cd /tmp/
+        rm -rf monit-* 2> /dev/null
+        dl=false
+        wget -q --show-progress --progress=bar:force:noscroll $link && dl=true
+        if [ $dl == false ]; then
+          echo '  Download failed!'
+	else
+          echo "  Download succeeded"
+          echo "Updating Monit"
+          echo "  stopping Monit service"
+          service monit stop
+          echo "  unpacking tar"
+          tar -xf monit-*.tar.gz
+          echo "  copying bin/ into /usr/bin/"
+          sudo cp monit-*/bin/monit /usr/bin/
+          echo "  copying man/man1/ into /usr/local/share/man/man1/"
+          sudo cp monit-*/man/man1/* /usr/local/share/man/man1/
+          echo "Cleaning up"
+          rm -rf monit-* 2> /dev/null
+          if [ $wasactive == "active" ]
+              then
+                echo "Starting Monit after update"
+                  service monit start
+              else
+                  echo "Monit was not running before, so not starting it now"
+              fi
+        fi
+    else
+        echo "Monit is up to date"
+    fi
+
+echo ""
