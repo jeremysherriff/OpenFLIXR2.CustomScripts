@@ -11,8 +11,16 @@ from email.mime.text import MIMEText
 import email.utils
 import smtplib
 import sys
+import os
 import argparse
 from ConfigParser import ConfigParser
+from shutil import copyfile
+
+if os.path.exists('/opt/custom/notify/email.ini') == False:
+ print("\nMail settings not defined!")
+ print("Please review and edit /opt/custom/notify/email.ini\n")
+ copyfile('/opt/custom/notify/.email.ini.dist', '/opt/custom/notify/email.ini')
+ exit()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-ver', action='store', default='_version_',
@@ -37,8 +45,11 @@ sender = config.get('Email','FROM_ADDRESS')
 to = config.get('Email','TO_ADDRESS')
 email_server = config.get('Email','MAIL_SERVER')
 email_port = config.get('Email','MAIL_PORT')
+email_tls = config.get('Email','USE_TLS')
+email_auth = config.get('Email','SMTP_AUTH')
 email_username = config.get('Email','SMTP_USER')
 email_password = config.get('Email','SMTP_PASS')
+
 email_subject = 'Plex Update Available'
 
 msg_html = """\
@@ -70,9 +81,11 @@ message['From'] = email.utils.formataddr((name, sender))
 message['To'] = email.utils.formataddr((to, to))
 
 mailserver = smtplib.SMTP(email_server, email_port)
-# mailserver.starttls()
+if email_tls == "yes":
+ mailserver.starttls()
 mailserver.ehlo()
-# mailserver.login(email_username, email_password)
+if email_auth == "yes":
+ mailserver.login(email_username, email_password)
 mailserver.sendmail(sender, to, message.as_string())
 mailserver.quit()
 
