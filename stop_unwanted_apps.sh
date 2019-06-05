@@ -68,7 +68,7 @@ EOF
 
     cd $CONF_BASE
     for s in *; do
-        if [[ "$s" == "localhost" || "$s" == "nfs" || "$s" == "ssh" || "$s" == "cron" || "$s" == "ntp" || "$s" == "_localsetup" ]]; then
+        if [[ "$s" == "localhost" || "$s" == "nfs" || "$s" == "ssh" || "$s" == "cron" || "$s" == "ntp" || "$s" == "_localsetup" || "$s" == "dnsmasq" || "$s" == "pihole" || "$s" == "webmin" || "$s" == "mysql" ]]; then
             echo "    Skipping $s as it is a system component"
             continue
         fi
@@ -88,14 +88,8 @@ EOF
           nzbhydra)
             echo "servicename=nzbhydra2">>$INIFILE
             ;;
-          pihole)
-            echo "servicename=pihole-FTL">>$INIFILE
-            ;;
           plexms)
             echo "servicename=plexmediaserver">>$INIFILE
-            ;;
-          utserver)
-            echo "servicename=utorrent-server">>$INIFILE
             ;;
         esac
         echo "">>$INIFILE
