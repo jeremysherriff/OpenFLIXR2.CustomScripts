@@ -1,0 +1,36 @@
+#!/bin/bash
+THISUSER=$(whoami)
+    if [ $THISUSER != 'root' ]
+        then
+            echo 'You must use sudo to run this script, sorry!'
+            exit  1
+    fi
+
+exec 1> >(tee -a /var/log/update_subzero.log) 2>&1
+
+echo "Updating Sub-Zero from GitHub"
+link=$(wget -q https://github.com/pannal/Sub-Zero.bundle/releases/latest -O - | grep -i href | grep -i bundle | grep -i .zip | head -1 | awk -F "[\"]" '{print $2}')
+link='https://github.com'$link
+# Write some stuff to the log so we know what happened if it goes wrong
+echo "Download link = $link"
+cd /tmp/
+rm -rf Sub-Zero.bundle* 2> /dev/null
+dl=false
+echo "Downloading"
+wget -q $link && dl=true
+if [ $dl == true ]; then
+  echo "Unpacking"
+  unzip Sub-Zero.bundle*.zip -d ./
+  echo "Installing"
+  cp -r Sub-Zero.bundle /var/lib/plexmediaserver/Library/Application\ Support/Plex\ Media\ Server/Plug-ins/
+  chown -R plex: /var/lib/plexmediaserver/Library/Application\ Support/Plex\ Media\ Server/Plug-ins/Sub-Zero.bundle/
+  echo "Cleaning up"
+  rm -rf Sub-Zero.bundle* 2> /dev/null
+  echo "Restarting Plex services"
+  systemctl restart plexmediaserver
+  echo "Finished"
+else
+  echo 'Download failed!'
+fi
+
+echo ""
