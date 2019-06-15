@@ -12,11 +12,13 @@ fileHandler = logging.FileHandler("/var/log/clear_qbt_complete.log")
 fileHandler.setFormatter(logFormatter)
 rootLogger.addHandler(fileHandler)
 rootLogger.setLevel(logging.INFO)
+debugmode = 0
 if len(sys.argv) > 1 and ( str(sys.argv[1]) == '-v' or str(sys.argv[1]) == '--verbose' ):
     consoleHandler = logging.StreamHandler(sys.stdout)
     consoleHandler.setFormatter(logFormatter)
     rootLogger.addHandler(consoleHandler)
     rootLogger.setLevel(logging.DEBUG)
+    debugmode = 1
 
 testmode = 0
 if len(sys.argv) > 1 and ( str(sys.argv[1]) == '-t' or str(sys.argv[1]) == '--test' ):
@@ -24,9 +26,9 @@ if len(sys.argv) > 1 and ( str(sys.argv[1]) == '-t' or str(sys.argv[1]) == '--te
     consoleHandler.setFormatter(logFormatter)
     rootLogger.addHandler(consoleHandler)
     rootLogger.setLevel(logging.DEBUG)
+    debugmode = 1
     testmode = 1
 
-print('')
 if len(sys.argv) > 1 and ( str(sys.argv[1]) == '-?' or str(sys.argv[1]) == '--help' ):
     print('clear_qbt_complete.py [option]')
     print('  Clears "Completed" status torrents from qBitTorrent')
@@ -40,14 +42,12 @@ if len(sys.argv) > 1 and ( str(sys.argv[1]) == '-?' or str(sys.argv[1]) == '--he
     print('')
     exit(0)
 
-if len(sys.argv) > 1 and ( str(sys.argv[1]) != '-v' and str(sys.argv[1]) != '--verbose' and str(sys.argv[1]) != '-t' and str(sys.argv[1]) != '--test' ):
-    print('Invalid option "'+str(sys.argv[1])+'"')
-    print('')
+if len(sys.argv) > 1 and ( debugmode == 0 ):
+    print('clear_qbt_complete.py: Invalid option "'+str(sys.argv[1])+'"')
     exit(1)
 
 if len(sys.argv) > 2:
-    print('Invalid option "'+str(sys.argv[2])+'"')
-    print('')
+    print('clear_qbt_complete.py: Invalid option "'+str(sys.argv[2])+'"')
     exit(1)
 
 # qBitTorrent server details, in URL format:
@@ -68,7 +68,8 @@ try:
 
     if len(data) == 0:
         logging.debug('No completed torrents to clear')
-        print('')
+        if debugmode == 1:
+            print('')
         exit(0)
     for tor in data:
         if tor['state'] != 'pausedUP':
@@ -86,10 +87,12 @@ try:
                 logging.error(str(err))
                 exitcode = 1
     logging.debug('Exiting normally with code '+str(exitcode))
-    print('')
+    if debugmode == 1:
+        print('')
     exit(exitcode)
 except requests.exceptions.RequestException as err:
     logging.error(str(err))
-    print('')
+    if debugmode == 1:
+        print('')
     exit(1)
 
