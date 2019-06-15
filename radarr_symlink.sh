@@ -4,7 +4,7 @@
 # continue seeding after import.
 # Should be set to fire on Download and Upgrade (but not on rename)
 
-LOGPATH="/var/log/radarr_symlink.log"
+LOGPATH="/var/log/radarr_symlink.log" # May need altering if using a docker container
 exec 1> >(tee -a $LOGPATH) 2>&1
 
 PERMPATH="$radarr_moviefile_path"
