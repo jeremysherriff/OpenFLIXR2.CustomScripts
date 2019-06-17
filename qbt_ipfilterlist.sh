@@ -22,6 +22,9 @@ wget "${URLS[@]}" -O - | gunzip | LC_ALL=C sort -u >"/home/mediabox/.config/qBit
 chown --reference=/home/mediabox/.config/qBittorrent/ /home/mediabox/.config/qBittorrent/ipfilter.p2p
 ISACTIVE=$(systemctl is-active qbittorrent)
 if [[ $ISACTIVE == "active" ]]; then
+	echo ""
 	echo Reloading qBitTorrent
 	systemctl restart qbittorrent
+	sleep 2
+	tail -20 .local/share/data/qBittorrent/logs/qbittorrent.log | grep filter
 fi
