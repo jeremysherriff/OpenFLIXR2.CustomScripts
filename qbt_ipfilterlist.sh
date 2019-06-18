@@ -26,5 +26,5 @@ if [[ $ISACTIVE == "active" ]]; then
 	echo Reloading qBitTorrent
 	systemctl restart qbittorrent
 	sleep 2
-	tail -20 .local/share/data/qBittorrent/logs/qbittorrent.log | grep filter
+	tail -20 /home/mediabox/.local/share/data/qBittorrent/logs/qbittorrent.log | grep filter
 fi
