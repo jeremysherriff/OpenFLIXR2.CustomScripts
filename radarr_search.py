@@ -4,6 +4,9 @@ import json
 import requests
 import argparse
 import time
+import syslog
+
+syslog.syslog('Radarr missing movie search started')
 
 parser = argparse.ArgumentParser(description='Radarr: Initiate missing movie search')
 parser.add_argument(
