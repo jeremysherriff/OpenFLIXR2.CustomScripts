@@ -11,5 +11,6 @@ Add following wrapper line to /opt/openflixr/userscript.sh
 
 
 ## Change History
-1.0 - 2019-01-07 - Initial commit.
-Scripts sourced from various bash and shell scripts lying around my OF server.
+Umm well I forgot to write change histories as I went.
+Perhaps just browse the commit history..? :)
+
