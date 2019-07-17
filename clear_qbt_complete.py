@@ -72,6 +72,9 @@ try:
             print('')
         exit(0)
     for tor in data:
+        if tor['category'] != 'radarr' and tor['category'] != 'sonarr':
+            logging.debug('Skipping '+tor['category']+' torrent: '+tor['name'])
+            continue
         if tor['state'] != 'pausedUP':
             logging.debug('Skipping '+tor['state']+' torrent: '+tor['name'])
             continue
