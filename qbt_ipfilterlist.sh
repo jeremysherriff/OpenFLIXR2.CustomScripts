@@ -23,8 +23,11 @@ chown --reference=/home/mediabox/.config/qBittorrent/ /home/mediabox/.config/qBi
 ISACTIVE=$(systemctl is-active qbittorrent)
 if [[ $ISACTIVE == "active" ]]; then
 	echo ""
-	echo Reloading qBitTorrent
-	systemctl restart qbittorrent
-	sleep 2
-	tail -20 /home/mediabox/.local/share/data/qBittorrent/logs/qbittorrent.log | grep filter
+	echo Reloading qBitTorrent IP filter
+	#systemctl restart qbittorrent
+	/usr/bin/wget -q -O - --header="Content-type:application/x-www-form-urlencoded" --post-data="json={\"ip_filter_enabled\":\"false\"}" http://127.0.0.1:8080/command/setPreferences
+	sleep 1
+	/usr/bin/wget -q -O - --header="Content-type:application/x-www-form-urlencoded" --post-data="json={\"ip_filter_enabled\":\"true\"}" http://127.0.0.1:8080/command/setPreferences
+	sleep 1
+	tail -10 /home/mediabox/.local/share/data/qBittorrent/logs/qbittorrent.log | grep filter
 fi
