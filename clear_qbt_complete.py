@@ -51,11 +51,12 @@ if len(sys.argv) > 2:
     exit(1)
 
 # qBitTorrent server details, in URL format:
-baseurl = 'http://localhost:8080'
+baseurl = 'http://localhost:8080/api/v2'
 
 # OK lets do stuff
 exitcode = 0
-url = '/query/torrents?filter=completed'
+#url = '/query/torrents?filter=completed'
+url = '/torrents/info?filter=completed'
 try:
     response = requests.get(baseurl+url)
     response.raise_for_status()
@@ -79,13 +80,11 @@ try:
             logging.debug('Skipping '+tor['state']+' torrent: '+tor['name'])
             continue
         logging.info('Clearing '+tor['state']+' torrent: '+tor['name'])
-        payload = {'hashes': tor['hash']}
-        url = '/command/deletePerm'
+        url = '/torrents/delete?hashes='+str(tor['hash'])+'&deleteFiles=true'
         if testmode == 0:
             try:
-                response = requests.post(baseurl+url,data=payload)
+                response = requests.get(baseurl+url)
                 response.raise_for_status()
-                logging.debug('POST data: '+str(payload))
             except requests.exceptions.RequestException as err:
                 logging.error(str(err))
                 exitcode = 1
