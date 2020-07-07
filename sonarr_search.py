@@ -18,7 +18,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 # Radarr server details, in URL format:
-baseurl = 'http://localhost:8989/sonarr/'
+baseurl = 'http://localhost/sonarr/'
 apikey = '5b00a64dc14a477b84dc8fae1f994776'
 
 h = dict()
