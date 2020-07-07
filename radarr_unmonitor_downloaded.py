@@ -79,4 +79,3 @@ except requests.exceptions.RequestException as err:
     syslog.syslog("Getting movie list with url %s" % url)
     syslog.syslog('FATAL: '+str(err))
     exit(1)
-
