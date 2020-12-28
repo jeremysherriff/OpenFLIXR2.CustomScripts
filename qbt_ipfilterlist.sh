@@ -23,7 +23,8 @@ wget "${URLS[@]}" --no-verbose -O - | gunzip | LC_ALL=C sort -u>"/mnt/downloads/
 	echo ""
 	echo Reloading qBitTorrent IP filter
 	/usr/bin/wget -q -O - --header="Content-type:application/x-www-form-urlencoded" --post-data="json={\"ip_filter_enabled\":\"false\"}" http://127.0.0.1:8080/api/v2/app/setPreferences
-	sleep 1
+	sleep 2
 	/usr/bin/wget -q -O - --header="Content-type:application/x-www-form-urlencoded" --post-data="json={\"ip_filter_enabled\":\"true\"}" http://127.0.0.1:8080/api/v2/app/setPreferences
+	sleep 2
 	 tail /opt/docker/qbittorrent/config/data/qBittorrent/logs/qbittorrent.log | grep filter
 # fi
