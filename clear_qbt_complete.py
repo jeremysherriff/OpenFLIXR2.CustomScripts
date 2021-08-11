@@ -51,7 +51,7 @@ if len(sys.argv) > 2:
     exit(1)
 
 # qBitTorrent server details, in URL format:
-baseurl = 'http://localhost:8080/api/v2'
+baseurl = 'http://localhost/qbt/api/v2'
 
 # OK lets do stuff
 exitcode = 0
