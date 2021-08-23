@@ -55,7 +55,6 @@ baseurl = 'http://localhost/qbt/api/v2'
 
 # OK lets do stuff
 exitcode = 0
-#url = '/query/torrents?filter=completed'
 url = '/torrents/info?filter=completed'
 try:
     response = requests.get(baseurl+url)
@@ -73,14 +72,15 @@ try:
             print('')
         exit(0)
     for tor in data:
-        if tor['category'] != 'radarr' and tor['category'] != 'sonarr':
-            logging.debug('Skipping '+tor['category']+' torrent: '+tor['name'])
-            continue
         if tor['state'] != 'pausedUP':
             logging.debug('Skipping '+tor['state']+' torrent: '+tor['name'])
             continue
-        logging.info('Clearing '+tor['state']+' torrent: '+tor['name'])
-        url = '/torrents/delete?hashes='+str(tor['hash'])+'&deleteFiles=true'
+        if tor['category'] == 'radarr' or tor['category'] == 'sonarr' :
+            logging.info('Clearing '+tor['state']+' torrent + data: '+tor['name'])
+            url = '/torrents/delete?hashes='+str(tor['hash'])+'&deleteFiles=true'
+        else :
+            logging.info('Clearing '+tor['state']+' torrent: '+tor['name'])
+            url = '/torrents/delete?hashes='+str(tor['hash'])+'&deleteFiles=false'
         if testmode == 0:
             try:
                 response = requests.get(baseurl+url)
