@@ -57,17 +57,24 @@ echo `date "+%Y%m%d-%H%M%S"` "[$RID]" "Subs folder directory listing:"
 ls -l "$SUBPATH/"
 
 # 2 = English
-# 3 = English Hearing-Impaired [HI]
+# 3 = English Hearing-Impaired [HI/SDH]
 # 4 = English Foreign-only/forced
 # We only really care about the forced subs (#4 in RARBG folders)
 if [[ -f "$SUBPATH/4_English.srt" ]]; then
+	echo `date "+%Y%m%d-%H%M%S"` "[$RID]" "Found English Forced subs"
 	echo `date "+%Y%m%d-%H%M%S"` "[$RID]" "Copying $SUBPATH/4_English.srt to $radarr_movie_path/${BASENAME}.en.forced.srt"
 	cp "$SUBPATH/4_English.srt" "$radarr_movie_path/${BASENAME}.en.forced.srt"
 fi
 # Take the standard English stuff as well, as these "included" subs will be better than anything we download
 # and might be needed if the Forced subs were not included.
+# Fall back to the Hearing Impaired subs if the standard English ones aren't there.
 if [[ -f "$SUBPATH/2_English.srt" ]]; then
+	echo `date "+%Y%m%d-%H%M%S"` "[$RID]" "Found English subs"
 	echo `date "+%Y%m%d-%H%M%S"` "[$RID]" "Copying $SUBPATH/2_English.srt to $radarr_movie_path/${BASENAME}.en.srt"
 	cp "$SUBPATH/2_English.srt" "$radarr_movie_path/${BASENAME}.en.srt"
+elif [[ -f "$SUBPATH/3_English.srt" ]]; then
+	echo `date "+%Y%m%d-%H%M%S"` "[$RID]" "Found English (Hearing-Impaired) subs"
+	echo `date "+%Y%m%d-%H%M%S"` "[$RID]" "Copying $SUBPATH/3_English.srt to $radarr_movie_path/${BASENAME}.en.sdh.srt"
+	cp "$SUBPATH/3_English.srt" "$radarr_movie_path/${BASENAME}.en.sdh.srt"
 fi
 
