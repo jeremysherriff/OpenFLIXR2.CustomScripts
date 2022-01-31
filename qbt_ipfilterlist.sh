@@ -30,7 +30,7 @@ mv /mnt/downloads/ipfilter.new /mnt/downloads/ipfilter.p2p
 
 echo ""
 echo Reloading qBitTorrent IP filter
-/usr/bin/wget -q -O - --header="Content-type:application/x-www-form-urlencoded" --post-data="json={\"ip_filter_enabled\":\"false\"}" http://127.0.0.1/qbt/api/v2/app/setPreferences
+/usr/bin/wget -q -O - --header="Content-type:application/x-www-form-urlencoded" --post-data="json={\"ip_filter_enabled\":\"false\"}" http://localhost:8080/api/v2/app/setPreferences
 sleep 2
-/usr/bin/wget -q -O - --header="Content-type:application/x-www-form-urlencoded" --post-data="json={\"ip_filter_enabled\":\"true\"}" http://127.0.0.1/qbt/api/v2/app/setPreferences
+/usr/bin/wget -q -O - --header="Content-type:application/x-www-form-urlencoded" --post-data="json={\"ip_filter_enabled\":\"true\"}" http://localhost:8080/api/v2/app/setPreferences
 # tail /opt/docker/qbittorrent/config/data/qBittorrent/logs/qbittorrent.log | grep filter
