@@ -5,6 +5,13 @@ import requests
 import logging
 import argparse
 
+parser=argparse.ArgumentParser()
+parser.add_argument('-b','--baseurl', help='Override url to qBitTorrent. Defaults to http://localhost:8080/')
+parser.add_argument('-v','--verbose', action="store_true", help='Verbose output for debug')
+parser.add_argument('-d','--debug', action="store_true", help='Do not action. Implies -v')
+args=parser.parse_args()
+
+
 # Set up logging - kinda important when deleting stuff!
 logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s] %(message)s")
 rootLogger = logging.getLogger()
@@ -12,50 +19,26 @@ fileHandler = logging.FileHandler("/var/log/clear_qbt_complete.log")
 fileHandler.setFormatter(logFormatter)
 rootLogger.addHandler(fileHandler)
 rootLogger.setLevel(logging.INFO)
-debugmode = 0
-if len(sys.argv) > 1 and ( str(sys.argv[1]) == '-v' or str(sys.argv[1]) == '--verbose' ):
+
+debugmode = False
+testmode = False
+baseurl = 'http://localhost:8080/'
+if args.verbose or args.debug:
+    debugmode = True
     consoleHandler = logging.StreamHandler(sys.stdout)
     consoleHandler.setFormatter(logFormatter)
     rootLogger.addHandler(consoleHandler)
     rootLogger.setLevel(logging.DEBUG)
-    debugmode = 1
+if args.debug:
+    testmode = True
+if args.baseurl:
+    baseurl = args.baseurl
 
-testmode = 0
-if len(sys.argv) > 1 and ( str(sys.argv[1]) == '-t' or str(sys.argv[1]) == '--test' ):
-    consoleHandler = logging.StreamHandler(sys.stdout)
-    consoleHandler.setFormatter(logFormatter)
-    rootLogger.addHandler(consoleHandler)
-    rootLogger.setLevel(logging.DEBUG)
-    debugmode = 1
-    testmode = 1
-
-if len(sys.argv) > 1 and ( str(sys.argv[1]) == '-?' or str(sys.argv[1]) == '--help' ):
-    print('clear_qbt_complete.py [option]')
-    print('  Clears "Completed" status torrents from qBitTorrent')
-    print('  Connects to "localhost:8080" without credentials')
-    print('  Logs output to /var/log/clear_qbt_complete.log')
-    print('  By default logs nothing to stdout/stderr to allow use in cron')
-    print('')
-    print('  Options:')
-    print('    -v --verbose : to enable console logging in addition to logfile')
-    print('    -t --test    : for test mode (no delete) - implies -v')
-    print('')
-    exit(0)
-
-if len(sys.argv) > 1 and ( debugmode == 0 ):
-    print('clear_qbt_complete.py: Invalid option "'+str(sys.argv[1])+'"')
-    exit(1)
-
-if len(sys.argv) > 2:
-    print('clear_qbt_complete.py: Invalid option "'+str(sys.argv[2])+'"')
-    exit(1)
-
-# qBitTorrent server details, in URL format:
-baseurl = 'http://localhost/qbt/api/v2'
+logging.debug('baseurl is '+baseurl)
 
 # OK lets do stuff
 exitcode = 0
-url = '/torrents/info?filter=completed'
+url = 'api/v2/torrents/info?filter=completed'
 try:
     response = requests.get(baseurl+url)
     response.raise_for_status()
@@ -68,7 +51,7 @@ try:
 
     if len(data) == 0:
         logging.debug('No completed torrents to clear')
-        if debugmode == 1:
+        if debugmode:
             print('')
         exit(0)
     for tor in data:
@@ -77,11 +60,11 @@ try:
             continue
         if tor['category'] == 'radarr' or tor['category'] == 'sonarr' :
             logging.info('Clearing '+tor['state']+' torrent + data: '+tor['name'])
-            url = '/torrents/delete?hashes='+str(tor['hash'])+'&deleteFiles=true'
+            url = 'api/v2/torrents/delete?hashes='+str(tor['hash'])+'&deleteFiles=true'
         else :
             logging.info('Clearing '+tor['state']+' torrent: '+tor['name'])
-            url = '/torrents/delete?hashes='+str(tor['hash'])+'&deleteFiles=false'
-        if testmode == 0:
+            url = 'api/v2/torrents/delete?hashes='+str(tor['hash'])+'&deleteFiles=false'
+        if not testmode:
             try:
                 response = requests.get(baseurl+url)
                 response.raise_for_status()
