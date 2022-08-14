@@ -6,8 +6,7 @@ if [[ ! -f /opt/custom/notify/email.ini ]]; then
         cp /opt/custom/notify/.email.ini.dist /opt/custom/notify/email.ini
         echo ""
         echo "Also check your dependencies:"
-        echo "  apt install crudini"
-        echo "  apt install sendemail"
+        echo "  apt install crudini sendemail"
         exit 2
 fi
 
