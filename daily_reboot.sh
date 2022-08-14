@@ -5,6 +5,9 @@ if [[ ! -f /opt/custom/notify/email.ini ]]; then
         echo "Please review and edit /opt/custom/notify/email.ini"
         cp /opt/custom/notify/.email.ini.dist /opt/custom/notify/email.ini
         echo ""
+        echo "Also check your dependencies:"
+        echo "  apt install crudini"
+        echo "  apt install sendemail"
         exit 2
 fi
 
