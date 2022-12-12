@@ -1,4 +1,9 @@
 #!/usr/bin/python
+
+#
+# Does not support qBT v4.5 due to API changes.
+#
+
 import sys
 import json
 import requests
