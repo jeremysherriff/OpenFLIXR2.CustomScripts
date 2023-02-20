@@ -16,11 +16,11 @@ set -e
 # http://list.iblocklist.com/?list=bt_level3
 # http://list.iblocklist.com/?list=bt_bogon
 URLS=(
-http://list.iblocklist.com/?list=cwworuawihqvocglcoss\&fileformat=p2p\&archiveformat=gz
 http://list.iblocklist.com/?list=ydxerpxkpcfqjaybcssw\&fileformat=p2p\&archiveformat=gz
 http://list.iblocklist.com/?list=gyisgnzbhppbvsphucsw\&fileformat=p2p\&archiveformat=gz
-http://list.iblocklist.com/?list=uwnukjqktoggdknzrhgh\&fileformat=p2p\&archiveformat=gz
 http://list.iblocklist.com/?list=gihxqmhyunbxhbmgqrla\&fileformat=p2p\&archiveformat=gz
+http://list.iblocklist.com/?list=uwnukjqktoggdknzrhgh\&fileformat=p2p\&archiveformat=gz
+http://list.iblocklist.com/?list=cwworuawihqvocglcoss\&fileformat=p2p\&archiveformat=gz
 http://list.iblocklist.com/?list=xpbqleszmajjesnzddhv\&fileformat=p2p\&archiveformat=gz
 )
 
