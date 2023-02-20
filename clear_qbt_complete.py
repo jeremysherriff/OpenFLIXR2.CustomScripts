@@ -23,11 +23,14 @@ rootLogger.setLevel(logging.INFO)
 debugmode = False
 testmode = False
 baseurl = 'http://localhost:8080/'
+
+consoleHandler = logging.StreamHandler(sys.stdout)
+consoleHandler.setFormatter(logFormatter)
+rootLogger.addHandler(consoleHandler)
+rootLogger.setLevel(logging.ERROR)
+
 if args.verbose or args.debug:
     debugmode = True
-    consoleHandler = logging.StreamHandler(sys.stdout)
-    consoleHandler.setFormatter(logFormatter)
-    rootLogger.addHandler(consoleHandler)
     rootLogger.setLevel(logging.DEBUG)
 if args.debug:
     testmode = True
