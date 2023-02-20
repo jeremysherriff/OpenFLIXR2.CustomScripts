@@ -1,9 +1,5 @@
 #!/usr/bin/python
 
-#
-# Does not support qBT v4.5 due to API changes.
-#
-
 import sys
 import json
 import requests
@@ -15,7 +11,6 @@ parser.add_argument('-b','--baseurl', help='Override url to qBitTorrent. Default
 parser.add_argument('-v','--verbose', action="store_true", help='Verbose output for debug')
 parser.add_argument('-d','--debug', action="store_true", help='Do not action. Implies -v')
 args=parser.parse_args()
-
 
 # Set up logging - kinda important when deleting stuff!
 logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s] %(message)s")
@@ -64,14 +59,14 @@ try:
             logging.debug('Skipping '+tor['state']+' torrent: '+tor['name'])
             continue
         if tor['category'] == 'radarr' or tor['category'] == 'sonarr' :
-            logging.info('Clearing '+tor['state']+' torrent + data: '+tor['name'])
-            url = 'api/v2/torrents/delete?hashes='+str(tor['hash'])+'&deleteFiles=true'
+            form_data = { 'hashes': str(tor['hash']), 'deleteFiles':'true' }
         else :
-            logging.info('Clearing '+tor['state']+' torrent: '+tor['name'])
-            url = 'api/v2/torrents/delete?hashes='+str(tor['hash'])+'&deleteFiles=false'
+            form_data = { 'hashes': str(tor['hash']), 'deleteFiles':'false' }
+        url = 'api/v2/torrents/delete'
+        logging.info('Clearing '+tor['state']+' torrent: '+tor['name'])
         if not testmode:
             try:
-                response = requests.get(baseurl+url)
+                response = requests.post(baseurl+url,data=form_data)
                 response.raise_for_status()
             except requests.exceptions.RequestException as err:
                 logging.error(str(err))
