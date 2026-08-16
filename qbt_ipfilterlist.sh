@@ -24,9 +24,11 @@ http://list.iblocklist.com/?list=cwworuawihqvocglcoss\&fileformat=p2p\&archivefo
 http://list.iblocklist.com/?list=xpbqleszmajjesnzddhv\&fileformat=p2p\&archiveformat=gz
 )
 
-wget "${URLS[@]}" --no-verbose -O - | gunzip | LC_ALL=C sort -u | grep -E . > /mnt/downloads/ipfilter.new
-mv /mnt/downloads/ipfilter.p2p /mnt/downloads/ipfilter.p2p.old
-mv /mnt/downloads/ipfilter.new /mnt/downloads/ipfilter.p2p
+wget "${URLS[@]}" --no-verbose -O - | gunzip | LC_ALL=C sort -u | grep -E . > /volume1/docker/qbittorrent/ipfilter/ipfilter.new
+dig @8.8.8.8 +short 0123456789nonexistent.com |   grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' |   awk '{print "0123456789nonexistent.com:" $1 "-" $1}' >> /volume1/docker/qbittorrent/ipfilter/ipfilter.new
+
+mv /volume1/docker/qbittorrent/ipfilter/ipfilter.p2p /volume1/docker/qbittorrent/ipfilter/ipfilter.p2p.old
+mv /volume1/docker/qbittorrent/ipfilter/ipfilter.new /volume1/docker/qbittorrent/ipfilter/ipfilter.p2p
 
 echo ""
 echo Reloading qBitTorrent IP filter
