@@ -11,17 +11,27 @@ echo "Date:          $TODAY"
 
 set -e
 
-# http://list.iblocklist.com/?list=bt_level1
-# http://list.iblocklist.com/?list=bt_level2
-# http://list.iblocklist.com/?list=bt_level3
-# http://list.iblocklist.com/?list=bt_bogon
 URLS=(
-http://list.iblocklist.com/?list=ydxerpxkpcfqjaybcssw\&fileformat=p2p\&archiveformat=gz
-http://list.iblocklist.com/?list=gyisgnzbhppbvsphucsw\&fileformat=p2p\&archiveformat=gz
-http://list.iblocklist.com/?list=gihxqmhyunbxhbmgqrla\&fileformat=p2p\&archiveformat=gz
-http://list.iblocklist.com/?list=uwnukjqktoggdknzrhgh\&fileformat=p2p\&archiveformat=gz
-http://list.iblocklist.com/?list=cwworuawihqvocglcoss\&fileformat=p2p\&archiveformat=gz
-http://list.iblocklist.com/?list=xpbqleszmajjesnzddhv\&fileformat=p2p\&archiveformat=gz
+    # http://www.iblocklist.com/?list=bt_level1
+    # http://list.iblocklist.com/?list=ydxerpxkpcfqjaybcssw\&fileformat=p2p\&archiveformat=gz
+
+    # http://www.iblocklist.com/?list=bt_bogon
+    http://list.iblocklist.com/?list=gihxqmhyunbxhbmgqrla\&fileformat=p2p\&archiveformat=gz
+
+    # http://www.iblocklist.com/?list=badpeers
+    http://list.iblocklist.com/?list=cwworuawihqvocglcoss\&fileformat=p2p\&archiveformat=gz
+
+    # http://www.iblocklist.com/?list=dshield
+    http://list.iblocklist.com/?list=xpbqleszmajjesnzddhv\&fileformat=p2p\&archiveformat=gz
+
+    # http://www.iblocklist.com/?list=DROP
+    http://list.iblocklist.com/?list=zbdlwrqkabxbcppvrnos\&fileformat=p2p\&archiveformat=gz
+
+    # http://www.iblocklist.com/?list=spyware
+    http://list.iblocklist.com/?list=llvtlsjyoyiczbkjsxpf\&fileformat=p2p\&archiveformat=gz
+
+    # http://www.iblocklist.com/?list=webexploit
+    http://list.iblocklist.com/?list=ghlzqtqxnzctvvajwwag\&fileformat=p2p\&archiveformat=gz
 )
 
 wget "${URLS[@]}" --no-verbose -O - | gunzip | LC_ALL=C sort -u | grep -E . > /volume1/docker/qbittorrent/ipfilter/ipfilter.new
@@ -33,6 +43,6 @@ mv /volume1/docker/qbittorrent/ipfilter/ipfilter.new /volume1/docker/qbittorrent
 echo ""
 echo Reloading qBitTorrent IP filter
 /usr/bin/wget -q -O - --header="Content-type:application/x-www-form-urlencoded" --post-data="json={\"ip_filter_enabled\":\"false\"}" http://localhost:8080/api/v2/app/setPreferences
-sleep 2
+sleep 1
 /usr/bin/wget -q -O - --header="Content-type:application/x-www-form-urlencoded" --post-data="json={\"ip_filter_enabled\":\"true\"}" http://localhost:8080/api/v2/app/setPreferences
-# tail /opt/docker/qbittorrent/config/data/qBittorrent/logs/qbittorrent.log | grep filter
+tail /volume1/docker/qbittorrent/config/qBittorrent/logs/qbittorrent.log | grep filter
